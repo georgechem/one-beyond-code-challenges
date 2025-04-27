@@ -1,7 +1,8 @@
 <?php
+namespace App\Controllers;
 
-require_once __DIR__ . '/../data/data.php';
-require_once __DIR__ . '/../models/Reservation.php';
+require_once __DIR__ . '/../Data/data.php';
+require_once __DIR__ . '/../Models/Reservation.php';
 
 class ReservationController {
     // POST /reservations
@@ -10,7 +11,7 @@ class ReservationController {
         header('Content-Type: application/json');
         echo json_encode(['message' => 'Reserve book functionality to be implemented.']);
     }
-    
+
     // GET /reservations
     public function status() {
         // TODO: Implement logic to return reservation status for a given borrower and book.
