@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\BookController;
+use App\Controllers\FineController;
 use App\Controllers\LoanController;
 use App\Controllers\ReservationController;
 use App\Data\Data;
@@ -26,22 +27,35 @@ $method = $_SERVER['REQUEST_METHOD'];
  */
 $state = Data::get();
 
+function eventOnTerminate(Data $state) : void{
+    $state->save();
+}
+
 if ($uri === '/books' && $method === 'GET') {
     $controller = new BookController();
     $controller->index();
 } elseif ($uri === '/loans' && $method === 'GET') {
     $controller = new LoanController();
     $controller->index();
+
 } elseif ($uri === '/loans/return' && $method === 'POST') {
     $controller = new LoanController();
     $controller->returnBook();
+
 } elseif ($uri === '/reservations' && $method === 'POST') {
     $controller = new ReservationController();
     $controller->reserve();
+
 } elseif ($uri === '/reservations' && $method === 'GET') {
     $controller = new ReservationController();
     $controller->status();
+} elseif ($uri === '/fines' && $method === 'GET') {
+    $controller = new FineController();
+    $controller->index();
 } else {
     http_response_code(404);
     echo json_encode(['error' => 'Endpoint not found']);
+    die;
 }
+
+eventOnTerminate($state);

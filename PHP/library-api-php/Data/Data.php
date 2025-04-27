@@ -5,6 +5,8 @@ use App\Models\Author;
 use App\Models\Book;
 use App\Models\BookStock;
 use App\Models\Borrower;
+use App\Models\Fine;
+use App\Models\Reservation;
 
 const ENABLE_STORAGE = 1;
 
@@ -20,7 +22,7 @@ class Data {
     /**
      * @var Author[]|array
      */
-    private array $authors;
+    public array $authors;
     /**
      * @var Book[]|array
      */
@@ -48,16 +50,16 @@ class Data {
     private function __construct() {
 
         if(!file_exists(self::STORAGE_KEY)) {
-            $this->assignTheState();
+            $this->assignTheInitialState();
         }else{
-            $this->assignTheState(false);
+            $this->assignTheInitialState(false);
         }
 
     }
 
-    private function assignTheState(bool $initial = true): void
+    private function assignTheInitialState(bool $initial = true): void
     {
-        if($initial || !ENABLE_STORAGE){
+        if($initial){
             $this->authors = [
                 new Author(1, 'Jane Austen'),
                 new Author(2, 'Mark Twain')
@@ -79,22 +81,82 @@ class Data {
             ];
 
             $this->fines = [];
-            $this->reservations = [];
+            $this->reservations = [
+                //new Reservation(1, 1, 1, '2025-04-27'),
+            ];
 
             if(ENABLE_STORAGE) {
-                $this->persistTheCurrentState();
+                $this->save();
             }
 
         }
         else{
-            $data = file_get_contents(self::STORAGE_KEY);
+
             try{
-                $array = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
-                foreach ($array as $key => $value) {
-                    if(property_exists($this, $key)){
-                        $this->{$key} = $value;
-                    }
-                }
+                $raw = json_decode(
+                    file_get_contents(self::STORAGE_KEY),
+                    false,                      // decode into stdClass, not assoc arrays
+                    512,
+                    JSON_THROW_ON_ERROR
+                );
+
+                /**
+                 * load from JSON and hydrate into model objects,
+                 * in PHP objects are returned by reference so that allow us to mutate
+                 * them directly
+                 */
+                $this->authors = array_map(
+                    fn(\stdClass $author) => new Author($author->id, $author->name),
+                    $raw->{self::AUTHOR} ?? []
+                );
+
+                $this->books = array_map(
+                    fn(\stdClass $book) => new Book(
+                        $book->id,
+                        $book->title,
+                        $book->authorId,
+                        $book->format,
+                        $book->isbn
+                    ),
+                    $raw->{self::BOOK} ?? []
+                );
+
+                $this->borrowers = array_map(
+                    fn(\stdClass $borrower) => new Borrower($borrower->id, $borrower->name, $borrower->email),
+                    $raw->{self::BORROWER} ?? []
+                );
+
+                $this->bookStocks = array_map(
+                    fn(\stdClass $bookStock) => new BookStock(
+                        $bookStock->id,
+                        $bookStock->bookId,
+                        $bookStock->isOnLoan,
+                        $bookStock->loanEndDate,
+                        $bookStock->borrowerId
+                    ),
+                    $raw->{self::BOOK_STOCK} ?? []
+                );
+
+                $this->fines = array_map(
+                    fn(\stdClass $fine) => new Fine(
+                        $fine->id,
+                        $fine->borrowerId,
+                        $fine->amount,
+                        $fine->details
+                    ),
+                    $raw->{self::FINE} ?? []
+                );
+
+                $this->reservations = array_map(
+                    fn(\stdClass $reservation) => new Reservation(
+                        $reservation->id,
+                        $reservation->bookId,
+                        $reservation->borrowerId,
+                        $reservation->reservedAt
+                    ),
+                    $raw->{self::RESERVATION} ?? []
+                );
+
             }catch(\JsonException $e){
                 var_dump(sprintf('Error: %s', $e->getMessage()));
             }
@@ -103,8 +165,12 @@ class Data {
 
     }
 
-    public function persistTheCurrentState(): void
+    public function save(): void
     {
+        if(!ENABLE_STORAGE) {
+            return;
+        }
+
         $stateString = json_encode([
             self::AUTHOR => $this->authors,
             self::BOOK => $this->books,
@@ -154,5 +220,20 @@ class Data {
     public function getReservations(): array
     {
         return $this->reservations;
+    }
+
+    public function setFines(array $fines): void
+    {
+        $this->fines = $fines;
+    }
+
+    public function setBookStocks(array $bookStocks): void
+    {
+        $this->bookStocks = $bookStocks;
+    }
+
+    public function setReservations(array $reservations): void
+    {
+        $this->reservations = $reservations;
     }
 }

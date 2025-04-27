@@ -1,10 +1,8 @@
 <?php
 namespace App\Controllers;
 
-
-use App\Data\Data;
+use App\Repository\BookRepository;
 use App\Response\JsonResponse;
-
 
 /**
  * Controllers normally return and handle the output of content internally,
@@ -13,7 +11,8 @@ use App\Response\JsonResponse;
 class BookController {
     public function index(): void  {
 
-        $books = Data::get()->getBooks();
+        $bookRepository = new BookRepository();
+        $books = $bookRepository->getBooks();
 
         JsonResponse::send($books);
     }

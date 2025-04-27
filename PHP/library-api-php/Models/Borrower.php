@@ -1,9 +1,9 @@
 <?php
 namespace App\Models;
 
-use App\Interfaces\BorrowerInterface;
+use App\Interfaces\EntityInterface;
 
-class Borrower implements BorrowerInterface
+class Borrower implements EntityInterface
 {
     public int $id;
     public string $name;

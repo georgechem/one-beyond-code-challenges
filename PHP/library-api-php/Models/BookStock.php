@@ -1,6 +1,11 @@
 <?php
 namespace App\Models;
-class BookStock {
+use App\Interfaces\EntityInterface;
+
+class BookStock implements EntityInterface{
+
+    public const int LOAN_DURATION_IN_DAYS = 10;
+
     public int $id;
     public int $bookId;
     public bool $isOnLoan;

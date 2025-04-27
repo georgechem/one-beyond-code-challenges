@@ -1,6 +1,8 @@
 <?php
 namespace App\Models;
-class Reservation {
+use App\Interfaces\EntityInterface;
+
+class Reservation implements EntityInterface {
     public int $id;
     public int $bookId;
     public int $borrowerId;

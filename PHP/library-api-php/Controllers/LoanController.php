@@ -1,22 +1,48 @@
 <?php
 namespace App\Controllers;
 
-require_once __DIR__ . '/../Data/data.php';
-require_once __DIR__ . '/../Models/BookStock.php';
-require_once __DIR__ . '/../Models/Fine.php';
+use App\Repository\LoanRepository;
+use App\Response\JsonResponse;
+use App\Services\BookStockService;
+use App\Validator\Constraints\BookIdBorrowerIdConstraint;
+use App\Validator\Validator;
+
 
 class LoanController {
     // GET /loans
-    public function index() {
+    public function index(): void {
         // TODO: Implement logic to list active loans with borrower and book details.
-        header('Content-Type: application/json');
-        echo json_encode(['message' => 'List active loans functionality to be implemented.']);
+        /**
+         * In a full scale application, we would inject the repository,
+         * not instantiate it here.
+         */
+        $loanRepository = new LoanRepository();
+        $activeLoans = $loanRepository->getActive();
+
+        JsonResponse::send($activeLoans);
     }
 
     // POST /loans/return
-    public function returnBook() {
+    public function returnBook(): void {
         // TODO: Implement logic to process the return of a book and calculate fines if overdue.
-        header('Content-Type: application/json');
-        echo json_encode(['message' => 'Return book functionality to be implemented.']);
+
+        $result = Validator::validate(new BookIdBorrowerIdConstraint());
+
+        if(!empty($errors = $result->getErrors())){
+            JsonResponse::send(['message' => $errors]);
+            die;
+        }
+
+        ['bookId' => $bookId, 'borrowerId' => $borrowerId] = $result->getValues();
+
+        $bookStockService = new BookStockService();
+        $status = $bookStockService->returnBook($bookId, $borrowerId);
+
+        $message = sprintf('Returned Book with id %d', $bookId);
+        if(!$status){
+            $message = sprintf('Book with id %d was not returned', $bookId);
+        }
+
+        JsonResponse::send(['message' => $message]);;
     }
 }

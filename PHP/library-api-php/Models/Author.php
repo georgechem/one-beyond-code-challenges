@@ -1,6 +1,8 @@
 <?php
 namespace App\Models;
-class Author {
+use App\Interfaces\EntityInterface;
+
+class Author implements EntityInterface {
     public int $id;
     public string $name;
 

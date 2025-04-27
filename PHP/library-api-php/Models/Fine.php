@@ -1,7 +1,12 @@
 <?php
 namespace App\Models;
 
-class Fine {
+use App\Interfaces\EntityInterface;
+
+class Fine implements EntityInterface {
+
+    public const float DAILY = 1.0;
+
     public int $id;
     public int $borrowerId;
     public float $amount;

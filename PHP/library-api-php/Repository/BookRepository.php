@@ -1,6 +1,14 @@
 <?php
+namespace App\Repository;
 
-class BookRepository
+
+use App\Models\Book;
+
+class BookRepository extends AbstractRepository
 {
+    public function getBooks(): array
+    {
+        return $this->storage->getBooks();
+    }
 
 }

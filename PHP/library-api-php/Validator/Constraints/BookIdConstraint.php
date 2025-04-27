@@ -3,7 +3,6 @@
 namespace App\Validator\Constraints;
 
 use App\Interfaces\ConstraintInterface;
-use App\Response\JsonResponse;
 
 /**
  * Constraints can be atomic, made one bigger just for simplicity
@@ -14,7 +13,7 @@ class BookIdConstraint implements ConstraintInterface
     private array $errors = [];
     private array $values = [];
 
-    public const string NAME = 'RETURN_BOOK';
+    public const string NAME = 'BOOK_ID';
 
     public function getName(): string
     {
@@ -26,11 +25,7 @@ class BookIdConstraint implements ConstraintInterface
         if (empty($_GET['bookId'])) {
             $this->errors[] = 'Book id is required.';
         }
-        if(empty($_GET['borrowerId'])){
-            $this->errors[] = 'Borrower id is required.';
-        }
 
-        $this->values['borrowerId'] = (int) $_GET['borrowerId'];
         $this->values['bookId'] = (int) $_GET['bookId'];
 
         return $this;

@@ -3,15 +3,17 @@
 namespace App\Validator\Constraints;
 
 use App\Interfaces\ConstraintInterface;
-use App\Response\JsonResponse;
 
-class ReturnBookConstraint implements ConstraintInterface
+/**
+ * Constraints can be atomic, made one bigger just for simplicity
+ */
+class BookIdBorrowerIdConstraint implements ConstraintInterface
 {
 
     private array $errors = [];
     private array $values = [];
 
-    public const string NAME = 'RETURN_BOOK';
+    public const string NAME = 'BOOK_ID_BORROWER_ID';
 
     public function getName(): string
     {
