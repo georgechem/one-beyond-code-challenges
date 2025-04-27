@@ -25,9 +25,9 @@ class ReservationController {
         $bookStockService = new BookStockService();
         $result = $bookStockService->reserveTheBook($bookId, $borrowerId);
 
-        $message = sprintf('Book with id %d was reserver for borrower with id %d', $bookId, $borrowerId);
+        $message = sprintf('Book with id %d was reserved for borrower with id %d', $bookId, $borrowerId);
         if(!$result){
-            $message = sprintf('Book with id %d could not be reserver for borrower', $bookId);
+            $message = sprintf('Book with id %d could not be reserved for borrower', $bookId);
         }
 
         JsonResponse::send(['message' => $message]);

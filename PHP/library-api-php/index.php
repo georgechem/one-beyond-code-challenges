@@ -6,8 +6,7 @@ use App\Controllers\LoanController;
 use App\Controllers\ReservationController;
 use App\Data\Data;
 
-require '../../vendor/autoload.php';
-
+require __DIR__ . '/vendor/autoload.php';
 
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
